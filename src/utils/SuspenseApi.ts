@@ -1,10 +1,10 @@
 import request from 'superagent';
 import { StatusType } from "../types";
 
-const fetchFleet = () => {
+const fetchCountries = () => {
   return new Promise((resolve, reject) => {
     request
-      .get('/api/path')
+      .get('/api/all?fields=name;alpha2Code;alpha3Code')
       .then((result) => {
         resolve(result.body);
       })
@@ -39,5 +39,5 @@ const wrapPromise = (promise: Promise<any>) => {
 }
 
 export const createResource = () => ({
-  emissionreporting: wrapPromise(fetchFleet())
+  countries: wrapPromise(fetchCountries())
 })

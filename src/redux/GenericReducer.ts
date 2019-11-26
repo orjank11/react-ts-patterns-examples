@@ -1,37 +1,91 @@
 import request from "superagent";
-import { Dispatch } from "redux";
+import { Dispatch, Action } from "redux";
+import { CountryList } from "../types";
 
-const FETCH_REQUESTED = 'genericReducer/FETCH_REQUESTED';
-const FETCH_SUCCESS = 'genericReducer/FETCH_SUCCESS';
-const FETCH_FAILED = 'genericReducer/FETCH_FAILED';
-const UPDATE = 'genericReducer/UPDATE';
-const REMOVE = 'genericReducer/REMOVE';
-const ADD = 'genericReducer/ADD';
+enum Types {
+  INITIAL = 'GenericReducer/INITIAL',
+  FETCH_REQUESTED = 'GenericReducer/FETCH_REQUESTED',
+  FETCH_SUCCESS = 'GenericReducer/FETCH_SUCCESS',
+  FETCH_FAILED = 'GenericReducer/FETCH_FAILED',
+  UPDATE = 'GenericReducer/UPDATE',
+  REMOVE = 'GenericReducer/REMOVE',
+  ADD = 'GenericReducer/ADD',
+} 
 
-const initialState = {};
+export interface IGenericReducer {
+  type: Types;
+  data: CountryList[];
+  isLoading: boolean;
+  isError: boolean;
+}
 
-const GenericReducer = (state = initialState, action: any) => {
+interface FetchRequested extends Action {
+  type: Types.FETCH_REQUESTED;
+}
+
+interface FetchSuccess extends Action {
+  type: Types.FETCH_SUCCESS;
+  payload: CountryList[];
+}
+
+interface FetchFailed extends Action {
+  type: Types.FETCH_FAILED;
+}
+
+interface Update extends Action {
+  type: Types.UPDATE;
+}
+
+interface Remove extends Action {
+  type: Types.REMOVE;
+}
+
+interface Add extends Action {
+  type: Types.ADD;
+}
+
+type ActionType = FetchRequested | FetchSuccess | FetchFailed | Update | Remove | Add;
+
+const initialState = {
+  type: Types.INITIAL,
+  data: [],
+  isLoading: false,
+  isError: false,
+};
+
+const GenericReducer = (state: IGenericReducer = initialState, action: ActionType): IGenericReducer => {
   switch (action.type) {
-    case FETCH_REQUESTED:
-    case FETCH_SUCCESS:
-    case FETCH_FAILED:
-    case UPDATE:
-    case REMOVE:
-    case ADD:
+    case Types.FETCH_REQUESTED:
+      return {
+        ...state, 
+        isLoading: true,
+        type: action.type,
+      }
+    case Types.FETCH_SUCCESS:
+      return {
+        ...state,
+        isLoading: false,
+        data: action.payload,
+        type: action.type,
+      }
+    case Types.FETCH_FAILED:
+    case Types.UPDATE:
+    case Types.REMOVE:
+    case Types.ADD:
     default:
       return state;
   }
 };
 
 export const fetchData = () => (dispatch: Dispatch) => {
-  dispatch({ type: FETCH_REQUESTED });
+  dispatch({ type: Types.FETCH_REQUESTED });
   request
-    .get('/api/path')
+    .get('/api/all?fields=name;alpha2Code;alpha3Code')
     .then((result) => {
-      dispatch({ type: FETCH_SUCCESS, payload: result.body});
+      dispatch({ type: Types.FETCH_SUCCESS, payload: result.body});
     })
     .catch((error) => {
-      dispatch({ type: FETCH_FAILED, payload: error });
+      dispatch({ type: Types.FETCH_FAILED, payload: error });
     })
 }
 export const add = () => () => {}
